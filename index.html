@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Minha Página de Links</title>
+      <style>
+         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #241f33;
+            color: #fff;
+            overflow-x: hidden;
+         }
+
+         .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #2c273c;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 10%;
+         }
+
+         .search-container {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+         }
+
+         #searchInput {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #3a3450;
+            color: #fff;
+         }
+
+         #searchInput::placeholder {
+            color: #ccc;
+         }
+
+         .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            color: #fff;
+            background-color: #1a5d63;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-transform: uppercase;
+         }
+
+         .btn:hover {
+            background-color: #165055;
+         }
+
+         h1 {
+            color: #fff;
+            margin: 0;
+            text-transform: uppercase;
+         }
+
+         section {
+            margin: 20px 10%;
+            background-color: #2c273c;
+            padding: 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+         }
+
+         .hidden {
+            display: none;
+         }
+
+         h2 {
+            color: #1a5d63;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+         }
+
+         .button-link {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            color: #fff;
+            background-color: #1a5d63;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-transform: uppercase;
+         }
+
+         .button-link:hover {
+            background-color: #165055;
+         }
+         
+         #btnTop {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #1a5d63;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+            display: none;
+         }
+
+         .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+         }
+
+         .modal-content {
+            background-color: #2c273c;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 60%;
+            max-width: 500px;
+         }
+
+         .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+         }
+
+         .close:hover {
+            color: #fff;
+         }
+
+         .form-group {
+            margin-bottom: 15px;
+         }
+
+         .form-group label {
+            display: block;
+            margin-bottom: 5px;
+         }
+
+         .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: none;
+            background-color: #3a3450;
+            color: #fff;
+         }
+
+         #no-results {
+            text-align: center;
+            padding: 20px;
+            background-color: #2c273c;
+            margin: 20px 10%;
+            border-radius: 8px;
+            display: none;
+         }
+
+         .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+         }
+
+         .delete-btn {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #d32f2f;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 5px;
+         }
+
+         .delete-btn:hover {
+            background-color: #b71c1c;
+         }
+
+         ::-webkit-scrollbar {
+            width: 8px;
+         }
+
+         ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+         }
+
+         ::-webkit-scrollbar-thumb {
+            background: #3a3450;
+            border-radius: 10px;
+         }
+         
+         ::-webkit-scrollbar-thumb:hover {
+            background: #4a4260;
+         }
+
+         .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #1a5d63;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+         }
+
+         .toast.show {
+            opacity: 1;
+         }
+      </style>
+   </head>
+   <body>
+      <div class="toolbar">
+         <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Buscar links... (pressione Enter)">
+            <button class="btn" onclick="searchLinks()">Buscar</button>
+         </div>
+         <button class="btn" id="addLinkBtn" style="margin-left: 10px;">Novo Link</button>
+      </div>
+
+      <div id="no-results">Nenhum resultado encontrado</div>
+
+      <div id="links-container">
+         <!-- O conteúdo será carregado dinamicamente pelo JavaScript -->
+      </div>
+
+      <!-- Modal para adicionar novos links -->
+      <div id="addLinkModal" class="modal">
+         <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 style="color: #fff;">Adicionar Novo Link</h2>
+            <div class="form-group">
+               <label for="linkName">Nome:</label>
+               <input type="text" id="linkName" placeholder="Ex: Google">
+            </div>
+            <div class="form-group">
+               <label for="linkUrl">URL:</label>
+               <input type="text" id="linkUrl" placeholder="Ex: https://www.google.com">
+            </div>
+            <div class="form-group">
+               <label for="linkCategory">Categoria:</label>
+               <select id="linkCategory">
+                  <option value="Util">Util</option>
+                  <option value="Message">Message Section</option>
+                  <option value="Workspace">Workspace Section</option>
+                  <option value="Email">Email Section</option>
+                  <option value="new">Nova Categoria...</option>
+               </select>
+            </div>
+            <div class="form-group" id="newCategoryGroup" style="display: none;">
+               <label for="newCategory">Nova Categoria:</label>
+               <input type="text" id="newCategory" placeholder="Nome da nova categoria">
+            </div>
+            <button class="btn" onclick="addNewLink()">Adicionar</button>
+         </div>
+      </div>
+
+      <!-- Toast para mensagens -->
+      <div id="toast" class="toast"></div>
+
+      <!-- Botão voltar ao topo -->
+      <button id="btnTop" onclick="scrollToTop()">Top</button>
+      
+      <script>
+         // Estrutura de dados para armazenar os links
+         let linksData = {
+            categories: [],
+            links: []
+         };
+
+         // Dados iniciais
+         const initialData = {
+            categories: ['Util', 'Message', 'Workspace', 'Email'],
+            links: [
+               { name: 'bitwarden', url: 'https://vault.bitwarden.com/', category: 'Util' },
+               { name: 'money mgr.', url: 'http://192.168.1.8:8888/', category: 'Util' },
+               { name: 'ikalas', url: 'https://ikalas.com/app/mermaid-live-editor', category: 'Util' },
+               { name: 'whatsapp', url: 'https://web.whatsapp.com/', category: 'Message' },
+               { name: 'discord', url: 'https://discord.com/channels/@me', category: 'Message' },
+               { name: 'atlassian', url: 'https://admin.atlassian.com/', category: 'Workspace' },
+               { name: 'chatgpt', url: 'https://chat.openai.com/', category: 'Workspace' },
+               { name: 'claude', url: 'https://claude.ai/new', category: 'Workspace' },
+               { name: 'github', url: 'https://github.com/', category: 'Workspace' },
+               { name: 'infinity', url: 'https://app.startinfinity.com/home', category: 'Workspace' },
+               { name: 'icloud', url: 'https://www.icloud.com/', category: 'Email' },
+               { name: 'gmail', url: 'https://mail.google.com/mail/u/0/', category: 'Email' },
+               { name: 'outlook', url: 'https://outlook.live.com/mail/0/', category: 'Email' }
+            ]
+         };
+
+         // Elementos do DOM
+         const modal = document.getElementById("addLinkModal");
+         const addLinkBtn = document.getElementById("addLinkBtn");
+         const closeBtn = document.getElementsByClassName("close")[0];
+         const categorySelect = document.getElementById("linkCategory");
+         const newCategoryGroup = document.getElementById("newCategoryGroup");
+         const searchInput = document.getElementById("searchInput");
+         const toast = document.getElementById("toast");
+
+         // Inicializar a página
+         document.addEventListener("DOMContentLoaded", function() {
+            // Carregar dados do localStorage ou usar os dados iniciais
+            loadData();
+            
+            // Renderizar os links na página
+            renderLinks();
+            
+            // Configurar eventos
+            setupEventListeners();
+         });
+
+         // Configurar eventos
+         function setupEventListeners() {
+            // Evento de tecla Enter no campo de pesquisa
+            searchInput.addEventListener("keypress", function(event) {
+               if (event.key === "Enter") {
+                  event.preventDefault();
+                  searchLinks();
+               }
+            });
+
+            // Resetar pesquisa quando o campo ficar vazio
+            searchInput.addEventListener("input", function() {
+               if (this.value === "") {
+                  resetSearch();
+               }
+            });
+
+            // Abrir modal
+            addLinkBtn.onclick = function() {
+               modal.style.display = "block";
+            }
+
+            // Fechar modal
+            closeBtn.onclick = function() {
+               modal.style.display = "none";
+            }
+
+            // Fechar modal quando clicar fora
+            window.onclick = function(event) {
+               if (event.target == modal) {
+                  modal.style.display = "none";
+               }
+            }
+
+            // Mostrar campo para nova categoria
+            categorySelect.onchange = function() {
+               if (this.value === "new") {
+                  newCategoryGroup.style.display = "block";
+               } else {
+                  newCategoryGroup.style.display = "none";
+               }
+            }
+
+            // Mostrar/esconder botão de voltar ao topo
+            window.onscroll = function() {
+               if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                  document.getElementById("btnTop").style.display = "block";
+               } else {
+                  document.getElementById("btnTop").style.display = "none";
+               }
+            };
+         }
+
+         // Função para carregar dados do localStorage
+         function loadData() {
+            const savedData = localStorage.getItem('linksData');
+            if (savedData) {
+               linksData = JSON.parse(savedData);
+               showToast("Dados carregados com sucesso!");
+            } else {
+               linksData = initialData;
+               saveData();
+            }
+
+            // Atualizar categorias no select
+            updateCategorySelect();
+         }
+
+         // Função para salvar dados no localStorage
+         function saveData() {
+            localStorage.setItem('linksData', JSON.stringify(linksData));
+            showToast("Dados salvos com sucesso!");
+         }
+
+         // Função para renderizar os links na página
+         function renderLinks() {
+            const container = document.getElementById('links-container');
+            container.innerHTML = '';
+
+            // Agrupar links por categoria
+            const groupedLinks = {};
+            
+            linksData.categories.forEach(category => {
+               groupedLinks[category] = [];
+            });
+
+            linksData.links.forEach(link => {
+               if (groupedLinks[link.category]) {
+                  groupedLinks[link.category].push(link);
+               }
+            });
+
+            // Criar seções para cada categoria
+            for (const category in groupedLinks) {
+               const links = groupedLinks[category];
+               
+               // Criar seção apenas se houver links ou se for uma categoria padrão
+               if (links.length > 0 || linksData.categories.includes(category)) {
+                  const section = document.createElement('section');
+                  section.setAttribute('data-category', category);
+                  
+                  const heading = document.createElement('h2');
+                  heading.textContent = category + (category.toLowerCase().includes('section') ? '' : ' Section');
+                  
+                  section.appendChild(heading);
+                  
+                  // Adicionar links
+                  links.forEach(link => {
+                     const linkElement = createLinkElement(link);
+                     section.appendChild(linkElement);
+                  });
+                  
+                  container.appendChild(section);
+               }
+            }
+         }
+
+         // Criar elemento de link
+         function createLinkElement(link) {
+            const linkContainer = document.createElement('div');
+            linkContainer.style.display = 'inline-block';
+            
+            const linkElement = document.createElement('a');
+            linkElement.href = link.url;
+            linkElement.target = '_blank';
+            linkElement.className = 'button-link';
+            linkElement.textContent = link.name;
+            
+            const deleteBtn = document.createElement('span');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.textContent = 'x';
+            deleteBtn.title = 'Remover link';
+            deleteBtn.onclick = function(e) {
+               e.preventDefault();
+               e.stopPropagation();
+               deleteLink(link);
+            };
+            
+            linkContainer.appendChild(linkElement);
+            linkContainer.appendChild(deleteBtn);
+            
+            return linkContainer;
+         }
+
+         // Função para adicionar novo link
+         function addNewLink() {
+            const name = document.getElementById("linkName").value.trim();
+            const url = document.getElementById("linkUrl").value.trim();
+            const categoryValue = document.getElementById("linkCategory").value;
+            
+            // Validar entradas
+            if (!name || !url) {
+               alert("Por favor, preencha todos os campos.");
+               return;
+            }
+            
+            if (!url.startsWith("http://") && !url.startsWith("https://")) {
+               alert("URL deve começar com http:// ou https://");
+               return;
+            }
+            
+            let category;
+            
+            // Verificar se é uma nova categoria
+            if (categoryValue === "new") {
+               category = document.getElementById("newCategory").value.trim();
+               if (!category) {
+                  alert("Por favor, insira o nome da nova categoria.");
+                  return;
+               }
+               
+               // Adicionar nova categoria se não existir
+               if (!linksData.categories.includes(category)) {
+                  linksData.categories.push(category);
+                  updateCategorySelect();
+               }
+            } else {
+               category = categoryValue;
+            }
+            
+            // Adicionar novo link
+            const newLink = {
+               name: name,
+               url: url,
+               category: category
+            };
+            
+            linksData.links.push(newLink);
+            
+            // Salvar e renderizar
+            saveData();
+            renderLinks();
+            
+            // Limpar e fechar modal
+            document.getElementById("linkName").value = "";
+            document.getElementById("linkUrl").value = "";
+            categorySelect.value = "Util";
+            document.getElementById("newCategory").value = "";
+            newCategoryGroup.style.display = "none";
+            modal.style.display = "none";
+         }
+
+         // Função para remover um link
+         function deleteLink(link) {
+            if (confirm(`Deseja realmente remover o link "${link.name}"?`)) {
+               const index = linksData.links.findIndex(l => 
+                  l.name === link.name && l.url === link.url && l.category === link.category
+               );
+               
+               if (index !== -1) {
+                  linksData.links.splice(index, 1);
+                  saveData();
+                  renderLinks();
+                  showToast(`Link "${link.name}" removido com sucesso!`);
+               }
+            }
+         }
+
+         // Atualizar o select de categorias
+         function updateCategorySelect() {
+            // Limpar opções existentes (exceto a última)
+            while (categorySelect.options.length > 1) {
+               categorySelect.remove(0);
+            }
+            
+            // Adicionar categorias atualizadas
+            linksData.categories.forEach(category => {
+               const option = document.createElement('option');
+               option.value = category;
+               option.textContent = category;
+               categorySelect.insertBefore(option, categorySelect.lastElementChild);
+            });
+         }
+
+         // Função de pesquisa
+         function searchLinks() {
+            const searchText = document.getElementById("searchInput").value.toLowerCase();
+            const sections = document.querySelectorAll("section");
+            const noResults = document.getElementById("no-results");
+            let foundResults = false;
+            
+            sections.forEach(section => {
+               const links = section.querySelectorAll("div");
+               let sectionHasVisible = false;
+               
+               links.forEach(linkContainer => {
+                  const link = linkContainer.querySelector("a");
+                  if (link.textContent.toLowerCase().includes(searchText) || 
+                      section.querySelector("h2").textContent.toLowerCase().includes(searchText)) {
+                     linkContainer.style.display = "inline-block";
+                     sectionHasVisible = true;
+                     foundResults = true;
+                  } else {
+                     linkContainer.style.display = "none";
+                  }
+               });
+               
+               // Mostrar/esconder seção baseado nos resultados
+               section.style.display = sectionHasVisible ? "block" : "none";
+            });
+            
+            // Mostrar mensagem de "nenhum resultado" se necessário
+            noResults.style.display = foundResults ? "none" : "block";
+         }
+
+         // Função para resetar a pesquisa
+         function resetSearch() {
+            const sections = document.querySelectorAll("section");
+            const linkContainers = document.querySelectorAll("section div");
+            const noResults = document.getElementById("no-results");
+            
+            linkContainers.forEach(linkContainer => {
+               linkContainer.style.display = "inline-block";
+            });
+            
+            sections.forEach(section => {
+               section.style.display = "block";
+            });
+            
+            noResults.style.display = "none";
+         }
+
+         // Botão de voltar ao topo
+         function scrollToTop() {
+            window.scrollTo({
+               top: 0,
+               behavior: "smooth"
+            });
+         }
+
+         // Função para mostrar mensagens toast
+         function showToast(message) {
+            const toastElement = document.getElementById("toast");
+            toastElement.textContent = message;
+            toastElement.classList.add("show");
+            
+            setTimeout(() => {
+               toastElement.classList.remove("show");
+            }, 3000);
+         }
+      </script>
+   </body>
+</html>
